@@ -1,0 +1,721 @@
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrönGård - Professionell Gräsklippning i Sverige</title>
+<style>
+  :root {
+    --primary-color: #4CAF50;
+    --secondary-color: #FFC107;
+    --accent-color: #FF5722;
+    --text-color: #333;
+    --background-color: #F0F4F0;
+    --customer-button: #FF4081;
+    --provider-button: #00BCD4;
+  }
+  
+  body, html {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow: hidden;
+    height: 100vh;
+    overflow: hidden;
+    font-size: 18px;
+  }
+  
+  .container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    position: relative;
+    padding-bottom: 60px;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  
+  header {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.4rem 1rem;
+    z-index: 10;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .logo h1 {
+    margin: 0;
+    font-size: 1.44rem;
+  }
+  
+  .logo span {
+    color: var(--secondary-color);
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-wrap: wrap;
+  }
+  
+  nav ul li {
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.8rem;
+  }
+  
+  main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    padding-bottom: 2cm;
+  }
+  
+  #showcase {
+    background: url('images/lawn-mowing.jpg') no-repeat center center/cover;
+    color: white;
+    text-align: center;
+    padding: 2rem 1rem;
+    position: relative;
+    flex: 0 0 auto;
+    z-index: 2;
+  }
+  
+  #showcase::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  #showcase h1, #showcase p {
+    position: relative;
+    z-index: 1;
+    margin: 0.25rem 0;
+  }
+  
+  #showcase h1 {
+    font-size: 3rem;
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+  }
+  
+  #showcase p {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  
+  .user-type-buttons {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+    position: relative;
+    z-index: 1;
+    flex-wrap: wrap;
+  }
+  
+  .user-type-button {
+    padding: 1rem 1.5rem;
+    margin: 0.25rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .user-type-button.customer {
+    background-color: var(--customer-button);
+    color: white;
+  }
+  
+  .user-type-button.provider {
+    background-color: var(--provider-button);
+    color: white;
+  }
+  
+  .user-type-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 1rem 1rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    flex: 1 0 auto;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .feature {
+    text-align: center;
+    width: 100%;
+    max-width: 250px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .feature img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 0.25rem;
+    display: block;
+  }
+  
+  .feature h3 {
+    font-size: 1.2rem;
+    margin: 0.25rem 0;
+  }
+  
+  .feature p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+  
+  .how-it-works {
+    background-color: rgba(232, 245, 233, 0.9);
+    padding: 1rem 1rem 2rem;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    flex: 0 0 auto;
+  }
+  
+  .how-it-works h2 {
+    color: var(--primary-color);
+    margin: 0 0 0.5rem 0;
+    font-size: 1.6rem;
+  }
+  
+  .how-it-works p {
+    font-size: 1.1rem;
+    margin: 0;
+    text-align: left;
+    line-height: 1.6;
+    padding-bottom: 2cm;
+  }
+  
+  footer {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.15rem;
+    font-size: 0.7rem;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+  }
+
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: normal;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  .grass-container {
+    position: fixed;
+    bottom: calc(60px + 2cm);
+    left: 0;
+    width: 100%;
+    height: 240px;
+    overflow: hidden;
+    z-index: 9998;
+    pointer-events: none;
+  }
+
+  .grass-blade {
+    position: absolute;
+    bottom: 0;
+    width: 8px;
+    background: linear-gradient(to top, #4CAF50, #45a049);
+    transform-origin: bottom center;
+    transition: height 0.3s ease-out;
+    animation: grassWave 2s ease-in-out infinite;
+  }
+
+  @keyframes grassWave {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  .lawnmower {
+    position: absolute;
+    bottom: 0;
+    width: 80px;
+    height: 48px;
+    background-image: url('lawnmower-animated.gif');
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 9999;
+    transition: left 0.1s linear;
+  }
+
+  .grass-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  @keyframes particleFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 0.7; }
+    100% { transform: translateY(80px) rotate(360deg); opacity: 0; }
+  }
+
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #F0F4F0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .loading-grass {
+    width: 100%;
+    height: 160px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .loading-grass-blade {
+    position: absolute;
+    bottom: 0;
+    width: 8px;
+    background-color: #4CAF50;
+    transform-origin: bottom center;
+    animation: loadingGrassGrow 1s ease-out forwards;
+  }
+
+  @keyframes loadingGrassGrow {
+    from { height: 0; }
+    to { height: 80px; }
+  }
+
+  .loading-lawnmower {
+    position: absolute;
+    bottom: 16px;
+    left: -40px;
+    width: 64px;
+    height: 40px;
+    background-image: url('lawnmower-icon.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    animation: loadingMowLawn 2s linear infinite;
+  }
+
+  @keyframes loadingMowLawn {
+    0% { left: -64px; }
+    100% { left: calc(100% + 64px); }
+  }
+
+  .header-grass {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 16px;
+    overflow: hidden;
+  }
+
+  .header-grass-blade {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    background-color: #45a049;
+    transform-origin: bottom center;
+    animation: headerGrassGrow 0.5s ease-out forwards, headerGrassWave 2s ease-in-out infinite;
+  }
+
+  @keyframes headerGrassGrow {
+    from { height: 0; }
+    to { height: 16px; }
+  }
+
+  @keyframes headerGrassWave {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  /* Mobile-specific styles */
+  @media (max-width: 768px) {
+    body, html {
+      overflow: auto;
+      font-size: 16px;
+    }
+
+    .container {
+      height: auto;
+      overflow-y: visible;
+    }
+
+    .logo h1 {
+      font-size: 1.2rem;
+    }
+
+    nav a {
+      font-size: 0.7rem;
+    }
+
+    #showcase {
+      padding: 4rem 1rem;
+    }
+
+    #showcase h1 {
+      font-size: 2.4rem;
+    }
+
+    #showcase p {
+      font-size: 1.2rem;
+    }
+
+    .user-type-button {
+      font-size: 1rem;
+      padding: 0.8rem 1.2rem;
+    }
+
+    .feature {
+      max-width: 100%;
+    }
+
+    .feature img {
+      height: 160px;
+    }
+
+    .how-it-works h2 {
+      font-size: 1.1rem;
+    }
+
+    .how-it-works p {
+      font-size: 0.8rem;
+    }
+
+    .grass-container {
+      height: 180px;
+    }
+
+    .lawnmower {
+      width: 60px;
+      height: 36px;
+    }
+
+    main {
+      padding-bottom: 1cm;
+    }
+
+    .grass-container {
+      bottom: calc(60px + 1cm);
+    }
+
+    header {
+      padding: 0.32rem 0.8rem;
+    }
+
+    .logo h1 {
+      font-size: 1.15rem;
+    }
+
+    nav a {
+      font-size: 0.64rem;
+    }
+
+    footer {
+      padding: 0.12rem;
+      font-size: 0.6rem;
+    }
+
+    .grass-container {
+      bottom: 24px;
+    }
+
+    .features {
+      margin-bottom: 0.5rem;
+    }
+
+    .how-it-works {
+      padding: 0.5rem 1rem 1.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="loading-overlay">
+    <div class="loading-grass">
+      <div class="loading-lawnmower"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <nav>
+        <div class="logo">
+          <h1><span>Grön</span>Gård</h1>
+        </div>
+        <ul>
+          <li><a href="#hem">Hem</a></li>
+          <li><a href="#tjanster">Tjänster</a></li>
+          <li><a href="#om-oss">Om Oss</a></li>
+          <li><a href="#kontakt">Kontakt</a></li>
+          <li><a href="#en" id="languageToggle">English</a></li>
+        </ul>
+      </nav>
+      <div class="header-grass"></div>
+    </header>
+
+    <main>
+      <section id="showcase">
+        <h1>Professionell Gräsklippning i Sverige</h1>
+        <p>Hitta eller erbjud gräsklippningstjänster enkelt och snabbt</p>
+        <div class="user-type-buttons">
+          <button class="user-type-button customer" onclick="selectUserType('customer')">Jag behöver gräsklippning</button>
+          <button class="user-type-button provider" onclick="selectUserType('provider')">Jag erbjuder gräsklippning</button>
+        </div>
+      </section>
+
+      <section class="features">
+        <div class="feature">
+          <img src="1.png" alt="Professionell gräsklippare" loading="lazy">
+          <h3>Modern Utrustning</h3>
+          <p>Endast högkvalitativa gräsklippare för bästa resultat</p>
+        </div>
+        <div class="feature">
+          <img src="2.png" alt="Perfekt klippt gräsmatta" loading="lazy">
+          <h3>Perfekt Resultat</h3>
+          <p>Våra tjänster garanterar en vacker och välskött gräsmatta</p>
+        </div>
+        <div class="feature">
+          <img src="3.png" alt="Miljövänlig gräsklippning" loading="lazy">
+          <h3>Miljövänligt</h3>
+          <p>Vi prioriterar hållbara metoder för gräsklippning</p>
+        </div>
+      </section>
+
+      <section class="how-it-works">
+        <h2>Hur det fungerar</h2>
+        <p>
+          GrönGård kopplar samman <a href="#tradgardsagare">trädgårdsägare</a> med <a href="#professionella">professionella gräsklippare</a>. Som kund beskriver du dina behov och får offerter från våra pålitliga leverantörer. Som leverantör får du tillgång till en bred kundbas och flexibla arbetstillfällen. Vi hanterar <a href="#bokning">bokning</a>, <a href="#betalning">betalning</a> och <a href="#kvalitet">kvalitetssäkring</a> för att göra processen smidig för alla parter. Vår <a href="#plattform">plattform</a> gör det enkelt att hitta rätt matchning för varje gräsklippningsbehov.
+        </p>
+      </section>
+      
+    </main>
+
+    <footer>
+      <p>&copy; 2023 GrönGård AB. Alla rättigheter förbehållna. </p>
+    </footer>
+  </div>
+
+  <div class="grass-container" id="grassContainer">
+    <div class="lawnmower" id="lawnmower"></div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+  <script>
+    function selectUserType(type) {
+      if (type === 'customer') {
+        window.location.href = 'https://gräsklippning.se/hitta-tjanst';
+      } else if (type === 'provider') {
+        window.location.href = 'https://gräsklippning.se/erbjud-tjanst';
+      }
+    }
+
+    document.getElementById('languageToggle').addEventListener('click', function(e) {
+      e.preventDefault();
+      // Implement language toggle logic here
+      alert('Språkväxling implementeras här');
+    });
+
+    // Create header grass animation
+    const headerGrass = document.querySelector('.header-grass');
+    for (let i = 0; i < 100; i++) {
+      const headerGrassBlade = document.createElement('div');
+      headerGrassBlade.className = 'header-grass-blade';
+      headerGrassBlade.style.left = `${Math.random() * 100}%`;
+      headerGrassBlade.style.animationDelay = `${Math.random() * 0.5}s`;
+      headerGrass.appendChild(headerGrassBlade);
+    }
+
+    // Grass cutting animation
+    const grassContainer = document.getElementById('grassContainer');
+    const lawnmower = document.getElementById('lawnmower');
+    const containerWidth = grassContainer.offsetWidth;
+    const containerHeight = grassContainer.offsetHeight;
+    const bladeCount = 150;
+    const blades = [];
+
+    function createGrass() {
+      for (let i = 0; i < bladeCount; i++) {
+        const blade = document.createElement('div');
+        blade.className = 'grass-blade';
+        blade.style.left = `${Math.random() * 100}%`;
+        blade.style.height = `${60 + Math.random() * 60}px`;
+        blade.style.width = `${2 + Math.random() * 4}px`;
+        blade.style.animationDelay = `${Math.random() * 2}s`;
+        grassContainer.appendChild(blade);
+        blades.push(blade);
+      }
+    }
+
+    function animateLawnmower() {
+      let position = -80;
+      const speed = 4;
+
+      function move() {
+        position += speed;
+        lawnmower.style.left = `${position}px`;
+
+        blades.forEach((blade) => {
+          const bladeRect = blade.getBoundingClientRect();
+          const lawnmowerRect = lawnmower.getBoundingClientRect();
+
+          if (
+            bladeRect.left < lawnmowerRect.right &&
+            bladeRect.right > lawnmowerRect.left &&
+            parseInt(blade.style.height) > 20
+          ) {
+            const newHeight = Math.max(20, parseInt(blade.style.height) - 24);
+            blade.style.height = `${newHeight}px`;
+            createGrassParticles(bladeRect.left, bladeRect.top);
+          }
+        });
+
+        if (position < containerWidth) {
+          requestAnimationFrame(move);
+        } else {
+          setTimeout(resetAndAnimate, 2000);
+        }
+      }
+
+      move();
+    }
+
+    function createGrassParticles(x, y) {
+      for (let i = 0; i < 3; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'grass-particle';
+        particle.style.left = `${x}px`;
+        particle.style.top = `${y}px`;
+        grassContainer.appendChild(particle);
+
+        gsap.to(particle, {
+          x: Math.random() * 40 - 20,
+          y: 80 + Math.random() * 40,
+          rotation: Math.random() * 360,
+          opacity: 0,
+          duration: 0.4 + Math.random() * 0.4,
+          ease: 'power1.out',
+          onComplete: () => grassContainer.removeChild(particle)
+        });
+      }
+    }
+
+    function resetAndAnimate() {
+      blades.forEach((blade) => {
+        blade.style.height = `${60 + Math.random() * 60}px`;
+      });
+      lawnmower.style.left = '-80px';
+      setTimeout(animateLawnmower, 500);
+    }
+
+    createGrass();
+    animateLawnmower();
+
+    // Remove loading overlay after 3 seconds
+    setTimeout(() => {
+      document.querySelector('.loading-overlay').style.display = 'none';
+    }, 3000);
+
+    // Lazy loading for images
+    document.addEventListener('DOMContentLoaded', function() {
+      if ('loading' in HTMLImageElement.prototype) {
+        const images = document.querySelectorAll('img[loading="lazy"]');
+        images.forEach(img => {
+          img.src = img.src;
+        });
+      } else {
+        // Fallback for browsers that don't support lazy loading
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js';
+        document.body.appendChild(script);
+      }
+    });
+
+    // Adjust grass animation for mobile
+    function adjustGrassForMobile() {
+      if (window.innerWidth <= 768) {
+        grassContainer.style.height = '120px';
+        blades.forEach(blade => {
+          blade.style.height = `${Math.min(120, parseInt(blade.style.height))}px`;
+        });
+      } else {
+        grassContainer.style.height = '180px';
+        blades.forEach(blade => {
+          blade.style.height = `${Math.min(180, parseInt(blade.style.height) * 1.33)}px`;
+        });
+      }
+    }
+
+    window.addEventListener('resize', adjustGrassForMobile);
+    adjustGrassForMobile();
+
+    // Ensure footer visibility
+    function ensureFooterVisibility() {
+      const footer = document.querySelector('footer');
+      const grassContainer = document.getElementById('grassContainer');
+      const footerHeight = footer.offsetHeight;
+      grassContainer.style.bottom = `${footerHeight}px`;
+    }
+
+    window.addEventListener('load', ensureFooterVisibility);
+    window.addEventListener('resize', ensureFooterVisibility);
+  </script>
+</body>
+</html>

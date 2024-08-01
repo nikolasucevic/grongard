@@ -1,0 +1,244 @@
+<html><head><base href="https://gr%C3%A4sklippning.se/#om-oss">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Om Oss - GrönGård</title>
+<style>
+  :root {
+    --primary-color: #4CAF50;
+    --secondary-color: #FFC107;
+    --accent-color: #FF5722;
+    --text-color: #333;
+    --background-color: #F0F4F0;
+  }
+  
+  body, html {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    flex: 1;
+  }
+  
+  header {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .logo h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  
+  .logo span {
+    color: var(--secondary-color);
+  }
+  
+  nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  nav ul li {
+    margin-left: 20px;
+  }
+  
+  nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  main {
+    margin-top: 80px;
+    padding: 2rem 0;
+  }
+  
+  h2 {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .about-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .about-text {
+    flex: 1;
+    min-width: 300px;
+    margin-right: 2rem;
+  }
+  
+  .about-image {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+  }
+  
+  .about-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  .team-members {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    margin-top: 2rem;
+  }
+  
+  .team-member {
+    text-align: center;
+    margin-bottom: 2rem;
+    width: 200px;
+  }
+  
+  .team-member img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 3px solid var(--primary-color);
+  }
+  
+  footer {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .about-content {
+      flex-direction: column;
+    }
+    
+    .about-text, .about-image {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 2rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <div class="logo">
+        <h1><span>Grön</span>Gård</h1>
+      </div>
+      <ul>
+        <li><a href="#hem">Hem</a></li>
+        <li><a href="#tjanster">Tjänster</a></li>
+        <li><a href="#om-oss">Om Oss</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2>Om GrönGård</h2>
+    <div class="about-content">
+      <div class="about-text">
+        <p>GrönGård grundades 2020 med en vision om att revolutionera gräsklippningstjänster i Sverige. Vi förstod att många husägare kämpar med att hitta pålitliga och professionella gräsklippare, medan skickliga trädgårdsmästare ofta har svårt att hitta stabila jobb.</p>
+        <p>Vår plattform kopplar samman trädgårdsägare med kvalificerade gräsklippare, vilket skapar en win-win-situation för båda parter. Vi är stolta över att erbjuda en tjänst som inte bara förenklar gräsklippning, utan också bidrar till att skapa jobb och vackrare grannskap över hela landet.</p>
+        <p>På GrönGård tror vi på hållbarhet, kvalitet och kundfokus. Vårt team arbetar ständigt med att förbättra vår plattform och utöka våra tjänster för att möta våra kunders behov och överträffa deras förväntningar.</p>
+      </div>
+      <div class="about-image">
+        <img src="https://gräsklippning.se/images/about-us.jpg" alt="GrönGårds team arbetar i ett grönt kontor">
+      </div>
+    </div>
+
+    <h2>Vårt Team</h2>
+    <div class="team-members">
+      <div class="team-member">
+        <img src="https://gräsklippning.se/images/team-member-1.jpg" alt="Lina Andersson, Grundare och VD">
+        <h3>Lina Andersson</h3>
+        <p>Grundare och VD</p>
+      </div>
+      <div class="team-member">
+        <img src="https://gräsklippning.se/images/team-member-2.jpg" alt="Erik Svensson, Teknisk Chef">
+        <h3>Erik Svensson</h3>
+        <p>Teknisk Chef</p>
+      </div>
+      <div class="team-member">
+        <img src="https://gräsklippning.se/images/team-member-3.jpg" alt="Maria Lindberg, Kundtjänstchef">
+        <h3>Maria Lindberg</h3>
+        <p>Kundtjänstchef</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 GrönGård AB. Alla rättigheter förbehållna.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+
+    // Lazy loading for images
+    const images = document.querySelectorAll('img');
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    }
+
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          img.classList.remove('lazy');
+          imageObserver.unobserve(img);
+        }
+      });
+    }, options);
+
+    images.forEach(img => imageObserver.observe(img));
+  </script>
+</body>
+</html>

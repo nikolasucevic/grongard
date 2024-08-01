@@ -1,0 +1,272 @@
+<html><head><base href="https://gr%C3%A4sklippning.se/#kontakt">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kontakta GrönGård - Professionell Gräsklippning</title>
+<style>
+  :root {
+    --primary-color: #4CAF50;
+    --secondary-color: #FFC107;
+    --accent-color: #FF5722;
+    --text-color: #333;
+    --background-color: #F0F4F0;
+  }
+  
+  body, html {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    flex: 1;
+  }
+  
+  header {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 0;
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .logo h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  
+  .logo span {
+    color: var(--secondary-color);
+  }
+  
+  nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  nav ul li {
+    margin-left: 20px;
+  }
+  
+  nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  main {
+    margin-top: 80px;
+    padding: 2rem 0;
+  }
+  
+  h2 {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--secondary-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .contact-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  
+  .contact-form {
+    flex: 1;
+    min-width: 300px;
+    margin-right: 2rem;
+  }
+  
+  .contact-info {
+    flex: 1;
+    min-width: 300px;
+  }
+  
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    margin-top: 1rem;
+  }
+  
+  input, textarea {
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
+  .contact-methods {
+    margin-top: 2rem;
+  }
+  
+  .contact-method {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .contact-method i {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+    color: var(--primary-color);
+  }
+  
+  footer {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    margin-top: 2rem;
+  }
+  
+  @media (max-width: 768px) {
+    .contact-content {
+      flex-direction: column;
+    }
+    
+    .contact-form, .contact-info {
+      width: 100%;
+      margin-right: 0;
+      margin-bottom: 2rem;
+    }
+  }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <nav class="container">
+      <div class="logo">
+        <h1><span>Grön</span>Gård</h1>
+      </div>
+      <ul>
+        <li><a href="#hem">Hem</a></li>
+        <li><a href="#tjanster">Tjänster</a></li>
+        <li><a href="#om-oss">Om Oss</a></li>
+        <li><a href="#kontakt">Kontakt</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h2>Kontakta Oss</h2>
+    <div class="contact-content">
+      <div class="contact-form">
+        <h3>Skicka ett meddelande</h3>
+        <form id="contact-form">
+          <label for="name">Namn:</label>
+          <input type="text" id="name" name="name" required>
+          
+          <label for="email">E-post:</label>
+          <input type="email" id="email" name="email" required>
+          
+          <label for="subject">Ämne:</label>
+          <input type="text" id="subject" name="subject" required>
+          
+          <label for="message">Meddelande:</label>
+          <textarea id="message" name="message" rows="5" required></textarea>
+          
+          <button type="submit">Skicka</button>
+        </form>
+      </div>
+      <div class="contact-info">
+        <h3>Kontaktinformation</h3>
+        <p>Har du frågor eller funderingar? Tveka inte att kontakta oss! Vi finns här för att hjälpa dig med alla dina gräsklippningsbehov.</p>
+        <div class="contact-methods">
+          <div class="contact-method">
+            <i class="fas fa-phone"></i>
+            <span>08-123 45 67</span>
+          </div>
+          <div class="contact-method">
+            <i class="fas fa-envelope"></i>
+            <span>info@grongard.se</span>
+          </div>
+          <div class="contact-method">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>Gröngatan 123, 123 45 Stockholm</span>
+          </div>
+        </div>
+        <h3>Öppettider</h3>
+        <p>Måndag - Fredag: 08:00 - 17:00<br>
+        Lördag: 10:00 - 14:00<br>
+        Söndag: Stängt</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2023 GrönGård AB. Alla rättigheter förbehållna.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Form submission handler
+    document.getElementById('contact-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Here you would typically send the form data to a server
+      // For this example, we'll just log it to the console
+      console.log('Form submitted!');
+      console.log('Name:', this.name.value);
+      console.log('Email:', this.email.value);
+      console.log('Subject:', this.subject.value);
+      console.log('Message:', this.message.value);
+      
+      // Clear the form
+      this.reset();
+      
+      // Show a success message (you might want to replace this with a more user-friendly notification)
+      alert('Tack för ditt meddelande! Vi återkommer så snart som möjligt.');
+    });
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
+</body>
+</html>
