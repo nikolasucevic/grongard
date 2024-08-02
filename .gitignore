@@ -1,5 +1,5 @@
 # Dependencies
-/node_modules
+/grongardapp/node_modules
 
 # Misc
 .DS_Store
