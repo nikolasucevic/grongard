@@ -1,0 +1,124 @@
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #FFC107;
+    --accent-color: #FF5722;
+    --text-color: #333;
+    --background-color: #F0F4F0;
+    --customer-color: #FF4081;
+    --provider-color: #00BCD4;
+  }
+  
+  body, html {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    font-size: 18px;
+  }
+  
+  .app-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+  }
+  
+  header {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.4rem 0;
+    z-index: 10;
+    position: relative;
+    width: 100%;
+  }
+  
+  nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  
+  .logo h1 {
+    margin: 0;
+    font-size: 1.44rem;
+  }
+  
+  .logo span {
+    color: var(--secondary-color);
+  }
+  
+  .user-type-display {
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0.8rem 1.2rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+  }
+  
+  .user-type-display.customer {
+    background-color: var(--customer-color);
+    color: white;
+  }
+  
+  .user-type-display.provider {
+    background-color: var(--provider-color);
+    color: white;
+  }
+  
+  main {
+    flex: 1;
+    padding-bottom: 60px;
+    width: 100%;
+  }
+  
+  footer {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.15rem;
+    font-size: 0.7rem;
+    text-align: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    width: 100%;
+  }
+  
+  @media (max-width: 768px) {
+    body, html {
+      font-size: 16px;
+    }
+  
+    .logo h1 {
+      font-size: 1.2rem;
+    }
+  
+    header {
+      padding: 0.32rem 0;
+    }
+  
+    nav {
+      padding: 0 0.8rem;
+    }
+  
+    .user-type-display {
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
+    }
+  
+    footer {
+      padding: 0.12rem;
+      font-size: 0.6rem;
+    }
+  }

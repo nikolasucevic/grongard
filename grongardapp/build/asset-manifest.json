@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/grongardapp/build/static/css/main.9a9b7b0b.css",
+    "main.js": "/grongardapp/build/static/js/main.0e7c2fb5.js",
+    "index.html": "/grongardapp/build/index.html",
+    "main.9a9b7b0b.css.map": "/grongardapp/build/static/css/main.9a9b7b0b.css.map",
+    "main.0e7c2fb5.js.map": "/grongardapp/build/static/js/main.0e7c2fb5.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9a9b7b0b.css",
+    "static/js/main.0e7c2fb5.js"
+  ]
+}

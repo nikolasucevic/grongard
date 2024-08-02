@@ -558,11 +558,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
   <script>
     function selectUserType(type) {
-      if (type === 'customer') {
-        window.location.href = 'https://gräsklippning.se/hitta-tjanst';
-      } else if (type === 'provider') {
-        window.location.href = 'https://gräsklippning.se/erbjud-tjanst';
-      }
+      // Store the user type in localStorage
+      localStorage.setItem('userType', type);
+      
+      // Redirect to the React app
+      window.location.href = '/grongardapp/build/index.html';
     }
 
     document.getElementById('languageToggle').addEventListener('click', function(e) {
