@@ -1,5 +1,12 @@
 # Dependencies
-grongardapp/node_modules
+/grongardapp/node_modules/
+/grongardapp/.pnp
+/grongardapp/.pnp.js
+
+# Testing
+/grongardapp/coverage
+
+
 
 # Misc
 .DS_Store
@@ -21,3 +28,10 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Cache
+/grongardapp/.cache
+/grongardapp/node_modules/.cache
+
+# Large files
+*.pack
