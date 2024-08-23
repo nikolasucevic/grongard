@@ -67,7 +67,6 @@ const mockDisputes = [
 const GronGardPlatform = () => {
   // Comprehensive state management
   const [user, setUser] = useState(null);
-  const [userType, setUserType] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [payments, setPayments] = useState([]);
   const [feedback, setFeedback] = useState([]);
@@ -77,15 +76,8 @@ const GronGardPlatform = () => {
   const [success, setSuccess] = useState('');
   const [view, setView] = useState('welcome');
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', type: 'customer', specialties: [], preferences: { notifications: true, language: 'sv' } });
-  const [jobFilters, setJobFilters] = useState({ 
-    status: 'open', 
-    price: { min: 0, max: 10000 }, 
-    complexity: [], 
-    location: '', 
-    tags: [], 
-    sortBy: 'created', 
-    sortOrder: 'desc' 
-  });  const [selectedJob, setSelectedJob] = useState(null);
+  const [jobFilters, setJobFilters] = useState({ status: 'open', minPrice: 0, maxPrice: 10000, complexity: [], location: '', tags: [], sortBy: 'created', sortOrder: 'desc' });
+  const [selectedJob, setSelectedJob] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('');
   const [feedbackForm, setFeedbackForm] = useState({ rating: 0, comment: '' });
   const [disputeForm, setDisputeForm] = useState({ reason: '', description: '', evidence: [] });
@@ -94,68 +86,7 @@ const GronGardPlatform = () => {
   const [chatMessages, setChatMessages] = useState({});
   const [userPreferences, setUserPreferences] = useState({ theme: 'light', fontSize: 'medium', notifications: { email: true, sms: false, push: true } });
 
- 
-
-  // Define all state and hooks at the top level
-  const [filteredJobs, setFilteredJobs] = useState([]);
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-
-  useEffect(() => {
-    if (view === 'findJobs') {
-      const fetchJobs = async () => {
-        try {
-          setLoading(true);
-          const jobs = await supabaseAPI.findJobs({
-            ...jobFilters,
-            minPrice: jobFilters.price.min,
-            maxPrice: jobFilters.price.max
-          });
-          setFilteredJobs(jobs);
-        } catch (error) {
-          console.error('Error fetching jobs:', error);
-          setError('Failed to fetch jobs. Please try again.');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchJobs();
-    }
-  }, [view, jobFilters]);
-
-
-  // Fetch jobs effect
-  useEffect(() => {
-    if (view === 'findJobs') {
-      const fetchJobs = async () => {
-        try {
-          setLoading(true);
-          console.log('Fetching jobs with filters:', jobFilters);
-          const jobs = await supabaseAPI.findJobs(jobFilters);
-          console.log('Fetched jobs:', jobs);
-          setFilteredJobs(jobs);
-        } catch (error) {
-          console.error('Error fetching jobs:', error);
-          setError('Failed to fetch jobs. Please try again.');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchJobs();
-    }
-  }, [jobFilters, view]);
-
-  // Handler functions
-  const handleJobSelect = job => {
-    setSelectedJob(job);
-    setView('jobDetails');
-  };
-
-  const handleFilterChange = (key, value) => {
-    setJobFilters(prev => ({ ...prev, [key]: value }));
-  };
-
+  
   // Supabase API functions
   const supabaseAPI = {
     register: async (userData) => {
@@ -197,77 +128,43 @@ const GronGardPlatform = () => {
     },
   
     createJob: async (jobData) => {
-      const { customer_id, provider_id, description, status, price, deadline, complexity, estimated_hours, location, tags } = jobData;
+      const { email, name, ...jobFields } = jobData; // Remove email and name from jobData
       const { data, error } = await supabase
         .from('jobs')
-        .insert([{
-          customer_id,
-          provider_id,
-          description,
-          status: status || 'open', // Provide a default status if not specified
-          price,
-          deadline,
-          complexity,
-          estimated_hours,
-          location,
-          tags
-        }])
-        .single();
-      if (error) throw error;
-      return data;
-    },
-
-    editJob: async (jobId, updatedData) => {
-      const { data, error } = await supabase
-        .from('jobs')
-        .update(updatedData)
-        .eq('id', jobId)
+        .insert([jobFields])
         .single();
       if (error) throw error;
       return data;
     },
   
-    findJobs: async (filters = {}) => {
-      let query = supabase.from('jobs').select('*');
+    findJobs: async (filters) => {
+      let query = supabase
+        .from('jobs')
+        .select('*');
       
       if (filters.status) query = query.eq('status', filters.status);
       if (filters.minPrice) query = query.gte('price', filters.minPrice);
       if (filters.maxPrice) query = query.lte('price', filters.maxPrice);
       if (filters.location) query = query.ilike('location', `%${filters.location}%`);
-      if (filters.complexity && filters.complexity.length > 0) {
-        query = query.in('complexity', filters.complexity);
-      }
-      if (filters.tags && filters.tags.length > 0) {
-        query = query.contains('tags', filters.tags);
-      }
-      
-      query = query.order(filters.sortBy || 'created', { ascending: filters.sortOrder === 'asc' });
-      
+      if (filters.tags && filters.tags.length > 0) query = query.contains('tags', filters.tags);
+    
+      query = query.order(filters.sortBy || 'created_at', { ascending: filters.sortOrder === 'asc' });
+    
       const { data, error } = await query;
       if (error) throw error;
       return data;
     },
   
     acceptJob: async (jobId, providerId) => {
-      console.log('Accepting job in supabaseAPI:', jobId, 'by user:', providerId);
       const { data, error } = await supabase
         .from('jobs')
-        .update({ status: 'in_progress', provider_id: providerId })
+        .update({ status: 'matched', providerId })
         .eq('id', jobId)
         .single();
-    
-      if (error) {
-        console.error('Supabase error:', error);
-        throw new Error(`Failed to accept job: ${error.message}`);
-      }
-    
-      if (!data) {
-        throw new Error('No data returned from update operation');
-      }
-    
-      console.log('Job updated successfully:', data);
+      if (error) throw error;
       return data;
     },
+  
     startJob: async (jobId) => {
       const { data, error } = await supabase
         .from('jobs')
@@ -281,8 +178,24 @@ const GronGardPlatform = () => {
     completeJob: async (jobId) => {
       const { data, error } = await supabase
         .from('jobs')
-        .update({ status: 'completed' })
+        .update({ status: 'completed', completedDate: new Date().toISOString() })
         .eq('id', jobId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+
+    submitFeedback: async (feedbackData) => {
+      const { data, error } = await supabase
+        .from('feedback')
+        .insert([{
+          job_id: feedbackData.jobId,
+          from_id: feedbackData.fromId,
+          to_id: feedbackData.toId,
+          rating: feedbackData.rating,
+          comment: feedbackData.comment,
+          created: new Date().toISOString()
+        }])
         .single();
       if (error) throw error;
       return data;
@@ -598,7 +511,6 @@ const GronGardPlatform = () => {
                 }
                 
                 setUser({ ...authData.user, ...profileData });
-                setUserType(profileData.user_type);
                 setSuccess('Inloggning lyckades!');
                 setView('dashboard');
               } catch (err) {
@@ -737,10 +649,9 @@ const GronGardPlatform = () => {
                   setSuccess('Du har loggat ut.');
                   break;
             case 'createJob':
-                    const { email, name, phone, password, type, specialties, preferences, ...jobData } = data;
+                    const { email, name, ...jobData } = data; // Remove email and name from data
                     const newJob = await supabaseAPI.createJob({ 
                       customer_id: user.id,
-                      status: 'open', // Explicitly set the status
                       ...jobData
                     });
                     setJobs(prevJobs => [...prevJobs, newJob]);
@@ -748,34 +659,21 @@ const GronGardPlatform = () => {
                     setSelectedJob(newJob);
                     setView('jobDetails');
                     break;
-            
             case 'acceptJob':
-                      try {
-                        console.log('Accepting job:', data.jobId, 'by user:', user.id);
-                        const updatedJob = await supabaseAPI.acceptJob(data.jobId, user.id);
-                        console.log('Job accepted successfully:', updatedJob);
-                        setJobs(prevJobs => prevJobs.map(job => job.id === data.jobId ? updatedJob : job));
-                        setSelectedJob(updatedJob);
-                        setSuccess('Du har accepterat jobbet!');
-                      } catch (error) {
-                        console.error('Error accepting job:', error);
-                        setError(`Failed to accept job: ${error.message}`);
-                      }
-                      break;
+              const updatedJob = await supabaseAPI.acceptJob(data.jobId, user.id);
+              setJobs(prevJobs => prevJobs.map(job => job.id === data.jobId ? updatedJob : job));
+              setSuccess('Du har accepterat jobbet!');
+              break;
             case 'startJob':
               const startedJob = await supabaseAPI.startJob(data.jobId);
               setJobs(prevJobs => prevJobs.map(job => job.id === data.jobId ? startedJob : job));
               setSuccess('Jobbet har påbörjats!');
               break;
             case 'completeJob':
-                const completedJob = await supabaseAPI.completeJob(data.jobId);
-                setJobs(prevJobs => prevJobs.map(job => job.id === data.jobId ? completedJob : job));
-                setSelectedJob(completedJob);
-                setSuccess('Jobbet har markerats som slutfört!');
-                if (user.type === 'customer') {
-                  setView('payment');
-                }
-                break;
+              const completedJob = await supabaseAPI.completeJob(data.jobId);
+              setJobs(prevJobs => prevJobs.map(job => job.id === data.jobId ? completedJob : job));
+              setSuccess('Jobbet har markerats som slutfört!');
+              break;
             case 'processPayment':
               const payment = await supabaseAPI.processPayment(data.jobId, data.method, data.amount);
               setPayments(prevPayments => [...prevPayments, payment]);
@@ -792,7 +690,6 @@ const GronGardPlatform = () => {
                   setFeedback(prevFeedback => [...prevFeedback, newFeedback]);
                   setSuccess('Feedback har skickats framgångsrikt!');
                   setView('jobDetails');
-                  setSelectedJob(prevJob => ({...prevJob, feedback: [...(prevJob.feedback || []), newFeedback]}));
                 } catch (error) {
                   console.error('Error submitting feedback:', error);
                   setError(`Failed to submit feedback: ${error.message}`);
@@ -1173,7 +1070,6 @@ const GronGardPlatform = () => {
   };
 
   const renderCreateJobView = () => (
-    
     <div>
     {renderBackButton()}
     <form onSubmit={(e) => { 
@@ -1244,430 +1140,213 @@ const GronGardPlatform = () => {
 
   );
 
-  const EditJobView = ({ job, onSave, onCancel }) => {
-    const [formData, setFormData] = useState({
-      description: job.description,
-      price: job.price,
-      deadline: job.deadline,
-      complexity: job.complexity,
-      estimatedHours: job.estimatedHours,
-      location: job.location,
-      tags: job.tags.join(', ')
-    });
-  
-    const handleInputChange = (e) => {
-      const { name, value } = e.target;
-      setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleJobSelect = useCallback((job) => {
-      setSelectedJob(job);
-      setView('jobDetails');
-    }, []);
-  
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      const updatedJob = {
-        ...formData,
-        tags: formData.tags.split(',').map(tag => tag.trim()),
-        price: parseFloat(formData.price),
-        estimatedHours: parseInt(formData.estimatedHours)
-      };
-      onSave(updatedJob);
-    };
-  
-    return (
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Label htmlFor="description">Beskrivning</Label>
-          <Textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="price">Pris</Label>
-          <Input
-            id="price"
-            name="price"
-            type="number"
-            value={formData.price}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="deadline">Deadline</Label>
-          <Input
-            id="deadline"
-            name="deadline"
-            type="date"
-            value={formData.deadline}
-            onChange={handleInputChange}
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="complexity">Komplexitet</Label>
-          <Select
-            id="complexity"
-            name="complexity"
-            value={formData.complexity}
-            onValueChange={(value) => handleInputChange({ target: { name: 'complexity', value } })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Välj komplexitet" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="low">Låg</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">Hög</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label htmlFor="estimatedHours">Uppskattad tid (timmar)</Label>
-          <Input
-            id="estimatedHours"
-            name="estimatedHours"
-            type="number"
-            value={formData.estimatedHours}
-            onChange={handleInputChange}
-            required
-          />
-          </div>
-          <div>
-            <Label htmlFor="location">Plats</Label>
-            <Input
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="tags">Taggar (kommaseparerade)</Label>
-            <Input
-              id="tags"
-              name="tags"
-              value={formData.tags}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Avbryt
-            </Button>
-            <Button type="submit">Spara ändringar</Button>
-          </div>
-          </form>
-          );
-          };
-
-          const renderFindJobsView = () => {
-            
-            return (
-              <div>
-                {renderBackButton()}
-                <h2 className="text-2xl font-bold mb-4">Hitta jobb</h2>
-                <Card className="mb-4">
-                  <CardHeader>
-                    <CardTitle>Filtrera jobb</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div>
-                        <Label htmlFor="status">Status</Label>
-                        <Select id="status" value={jobFilters.status} onValueChange={(value) => handleFilterChange('status', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Välj status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="open">Öppna</SelectItem>
-                            <SelectItem value="in_progress">Pågående</SelectItem>
-                            <SelectItem value="completed">Avslutade</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="minPrice">Minpris</Label>
-                        <Input
-                          id="minPrice"
-                          type="number"
-                          value={jobFilters.minPrice}
-                          onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="maxPrice">Maxpris</Label>
-                        <Input
-                          id="maxPrice"
-                          type="number"
-                          value={jobFilters.maxPrice}
-                          onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="location">Plats</Label>
-                        <Input
-                          id="location"
-                          value={jobFilters.location}
-                          onChange={(e) => handleFilterChange('location', e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="sortBy">Sortera efter</Label>
-                        <Select id="sortBy" value={jobFilters.sortBy} onValueChange={(value) => handleFilterChange('sortBy', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Välj sortering" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="created">Skapad</SelectItem>
-                            <SelectItem value="price">Pris</SelectItem>
-                            <SelectItem value="deadline">Deadline</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label htmlFor="sortOrder">Sorteringsordning</Label>
-                        <Select id="sortOrder" value={jobFilters.sortOrder} onValueChange={(value) => handleFilterChange('sortOrder', value)}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Välj ordning" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="asc">Stigande</SelectItem>
-                            <SelectItem value="desc">Fallande</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader className="w-8 h-8 animate-spin" />
-        </div>
-      ) : filteredJobs.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredJobs.map(job => (
-            <Card key={job.id} className="cursor-pointer hover:shadow-lg transition-shadow duration-200" onClick={() => handleJobSelect(job)}>
-              <CardHeader>
-                <CardTitle>{job.description}</CardTitle>
-                <CardDescription>{job.location}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex justify-between items-center mb-2">
-                  <Badge variant={job.status === 'open' ? 'default' : job.status === 'in_progress' ? 'secondary' : 'success'}>
-                    {job.status === 'open' ? 'Öppen' : job.status === 'in_progress' ? 'Pågående' : 'Avslutad'}
-                  </Badge>
-                  <span className="font-bold">{formatCurrency(job.price)}</span>
-                </div>
-                <p className="text-sm text-gray-500">Deadline: {formatDate(job.deadline)}</p>
-                <p className="text-sm text-gray-500">Komplexitet: {job.complexity}</p>
-              </CardContent>
-              <CardFooter>
-                <div className="flex flex-wrap gap-1">
-                  {job.tags && job.tags.map(tag => (
-                    <Badge key={tag} variant="outline">{tag}</Badge>
-                  ))}
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-gray-500">Inga jobb hittades som matchar dina filter.</p>
-          </CardContent>
-        </Card>
-      )}
+  const renderFindJobsView = () => (
+    <div>
+    {renderBackButton()}
+    <form onSubmit={(e) => { 
+      e.preventDefault(); 
+      console.log('Form submitted. FormData:', formData);
+      handleAction('createJob', formData); 
+    }} className="space-y-4"></form>
+    <div className="space-y-4">
+      <h3 className="text-xl font-semibold">Hitta jobb</h3>
+      <div className="flex flex-wrap gap-4">
+        <Input 
+          placeholder="Sök..."
+          value={jobFilters.search}
+          onChange={(e) => handleJobFilterChange('search', e.target.value)}
+        />
+        <Select 
+          value={jobFilters.status} 
+          onValueChange={(value) => handleJobFilterChange('status', value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Alla</SelectItem>
+            <SelectItem value="open">Öppna</SelectItem>
+            <SelectItem value="in_progress">Pågående</SelectItem>
+            <SelectItem value="completed">Avslutade</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select 
+          value={jobFilters.sortBy} 
+          onValueChange={(value) => handleSortChange(value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sortera efter" />
+          </SelectTrigger>
+          <SelectContent>
+          <SelectItem value="created">Skapad</SelectItem>
+            <SelectItem value="deadline">Deadline</SelectItem>
+            <SelectItem value="price">Pris</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button onClick={() => handleJobFilterChange('sortOrder', jobFilters.sortOrder === 'asc' ? 'desc' : 'asc')}>
+          {jobFilters.sortOrder === 'asc' ? <ArrowUpDown /> : <ArrowDownUp />}
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {jobs.map(job => (
+          <Card key={job.id} className="cursor-pointer hover:shadow-lg transition-shadow duration-200" onClick={() => { setSelectedJob(job); setView('jobDetails'); }}>
+            <CardHeader>
+              <CardTitle>{job.description}</CardTitle>
+              <CardDescription>{formatDate(job.created)}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="font-semibold">{formatCurrency(job.price)}</p>
+              <p className="text-sm text-gray-500">{job.location}</p>
+              <div className="flex items-center mt-2">
+                <Clock className="w-4 h-4 mr-1" />
+                <span className="text-sm">{formatDate(job.deadline)}</span>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Badge variant={job.status === 'open' ? 'default' : job.status === 'in_progress' ? 'secondary' : 'success'}>
+                {job.status === 'open' ? 'Öppen' : job.status === 'in_progress' ? 'Pågående' : 'Avslutad'}
+              </Badge>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </div>
+     </div>
   );
-};
 
+  const renderJobDetailsView = () => {
+    
+    if (!selectedJob || !user) return <div>{renderBackButton()}Ingen jobbinformation tillgänglig.</div>;
 
-
-
-const renderJobDetailsView = () => {
-  if (!selectedJob) {
     return (
       <div>
-        {renderBackButton()}
-        <h2 className="text-2xl font-bold mb-4">Jobbdetaljer</h2>
-        <Card>
-          <CardContent className="text-center py-8">
-            <p className="text-gray-500">Ingen jobbinformation tillgänglig. Vänligen välj ett jobb från listan.</p>
-            <Button onClick={() => setView('findJobs')} className="mt-4">Tillbaka till jobblistan</Button>
-          </CardContent>
-        </Card>
+    {renderBackButton()}
+    <form onSubmit={(e) => { 
+      e.preventDefault(); 
+      console.log('Form submitted. FormData:', formData);
+      handleAction('createJob', formData); 
+    }} className="space-y-4"></form>
+      <div className="space-y-6">
+        <h3 className="text-2xl font-semibold">{selectedJob.description}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Jobbdetaljer</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <dl className="space-y-2">
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Status</dt>
+                  <dd>
+                    <Badge variant={selectedJob.status === 'open' ? 'default' : selectedJob.status === 'in_progress' ? 'secondary' : 'success'}>
+                      {selectedJob.status === 'open' ? 'Öppen' : selectedJob.status === 'in_progress' ? 'Pågående' : 'Avslutad'}
+                    </Badge>
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Pris</dt>
+                  <dd className="text-lg font-semibold">{formatCurrency(selectedJob.price)}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Plats</dt>
+                  <dd>{selectedJob.location}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Skapad</dt>
+                  <dd>{formatDate(selectedJob.created)}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Deadline</dt>
+                  <dd>{formatDate(selectedJob.deadline)}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Komplexitet</dt>
+                  <dd>{selectedJob.complexity}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm font-medium text-gray-500">Uppskattad tid</dt>
+                  <dd>{selectedJob.estimatedHours} timmar</dd>
+                </div>
+              </dl>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Åtgärder</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {user.type === 'provider' && selectedJob.status === 'open' && (
+                  <Button onClick={() => handleAction('acceptJob', { jobId: selectedJob.id })} className="w-full">
+                    Acceptera jobb
+                  </Button>
+                )}
+                {user.type === 'provider' && selectedJob.status === 'in_progress' && (
+                  <Button onClick={() => handleAction('completeJob', { jobId: selectedJob.id })} className="w-full">
+                    Markera som slutfört
+                  </Button>
+                )}
+                {user.type === 'customer' && selectedJob.status === 'completed' && (
+                  <Button onClick={() => setView('payment')} className="w-full">
+                    Betala
+                  </Button>
+                )}
+                <Button onClick={() => setView('messages')} variant="outline" className="w-full">
+                  Meddelanden
+                </Button>
+                {selectedJob.status === 'completed' && (
+                  <Button onClick={() => setView('feedback')} variant="outline" className="w-full">
+                    Lämna feedback
+                  </Button>
+                )}
+                <Button onClick={() => setView('dispute')} variant="destructive" className="w-full">
+                  Rapportera problem
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>      
+          </div>
+
+        {selectedJob.status === 'completed' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Feedback</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {feedback.filter(f => f.jobId === selectedJob.id).map(f => (
+                <div key={f.id} className="border-b last:border-b-0 py-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Avatar>
+                        <AvatarFallback>{f.fromId[0].toUpperCase()}</AvatarFallback>
+                      </Avatar>
+                      <div className="ml-4">
+                        <p className="font-semibold">{mockUsers.find(u => u.id === f.fromId)?.name}</p>
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className={`w-4 h-4 ${i < f.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <span className="text-sm text-gray-500">{formatDate(f.created)}</span>
+                  </div>
+                  <p className="mt-2">{f.comment}</p>
+                  {f.response && (
+                    <div className="mt-4 pl-4 border-l-2 border-gray-200">
+                      <p className="font-semibold">Svar:</p>
+                      <p>{f.response}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
       </div>
     );
-  }
-
-  const handleSaveEdit = async (updatedJob) => {
-    try {
-      const savedJob = await supabaseAPI.editJob(selectedJob.id, updatedJob);
-      setSelectedJob(savedJob);
-      setIsEditing(false);
-      setSuccess('Jobbet har uppdaterats framgångsrikt!');
-    } catch (error) {
-      console.error('Error updating job:', error);
-      setError('Failed to update job. Please try again.');
-    }
   };
-
-  const handleDeleteJob = async () => {
-    try {
-      await supabaseAPI.deleteJob(selectedJob.id);
-      setSuccess('Jobbet har raderats framgångsrikt!');
-      setView('findJobs');
-    } catch (error) {
-      console.error('Error deleting job:', error);
-      setError('Failed to delete job. Please try again.');
-    }
-  };
-
-  if (isEditing) {
-    return (
-      <>
-        {renderBackButton()}
-        <EditJobView
-          job={selectedJob}
-          onSave={handleSaveEdit}
-          onCancel={() => setIsEditing(false)}
-        />
-      </>
-    );
-  }
-
-  return (
-    <div>
-      {renderBackButton()}
-      <h2 className="text-2xl font-bold mb-4">Jobbdetaljer</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle>{selectedJob.description}</CardTitle>
-            <CardDescription>{selectedJob.location}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="font-semibold">Status:</span>
-                <Badge variant={selectedJob.status === 'open' ? 'default' : selectedJob.status === 'in_progress' ? 'secondary' : 'success'}>
-                  {selectedJob.status === 'open' ? 'Öppen' : selectedJob.status === 'in_progress' ? 'Pågående' : 'Avslutad'}
-                </Badge>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Pris:</span>
-                <span>{formatCurrency(selectedJob.price)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Skapad:</span>
-                <span>{formatDate(selectedJob.created)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Deadline:</span>
-                <span>{formatDate(selectedJob.deadline)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Komplexitet:</span>
-                <span>{selectedJob.complexity}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Uppskattad tid:</span>
-                <span>{selectedJob.estimatedHours} timmar</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Kund:</span>
-                <span>{selectedJob.customerName || 'Ej tilldelad'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold">Leverantör:</span>
-                <span>{selectedJob.providerName || 'Ej tilldelad'}</span>
-              </div>
-            </div>
-            <div className="mt-4">
-              <span className="font-semibold">Tags:</span>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {selectedJob.tags.map(tag => (
-                  <Badge key={tag} variant="outline">{tag}</Badge>
-                ))}
-              </div>
-            </div>
-            <div className="mt-4">
-              <span className="font-semibold">Beskrivning:</span>
-              <p className="mt-1">{selectedJob.description}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Åtgärder</CardTitle>
-          </CardHeader>
-          <CardContent>
-  <div className="space-y-2">
-    {user.type === 'provider' && selectedJob.status === 'open' && (
-      <Button onClick={() => handleAction('acceptJob', { jobId: selectedJob.id })} className="w-full">
-        Acceptera jobb
-      </Button>
-    )}
-    {user.type === 'provider' && selectedJob.status === 'in_progress' && (
-      <Button onClick={() => handleAction('completeJob', { jobId: selectedJob.id })} className="w-full">
-        Markera som slutfört
-      </Button>
-    )}
-    {user.type === 'customer' && selectedJob.status === 'completed' && (
-      <Button onClick={() => setView('payment')} className="w-full">
-        Betala
-      </Button>
-    )}
-    <Button onClick={() => setView('messages')} variant="outline" className="w-full">
-      Meddelanden
-    </Button>
-    {selectedJob.status === 'completed' && (
-      <Button onClick={() => setView('feedback')} variant="outline" className="w-full">
-        Lämna feedback
-      </Button>
-    )}
-    <Button onClick={() => setView('dispute')} variant="destructive" className="w-full">
-      Rapportera problem
-    </Button>
-  </div>
-</CardContent>
-        </Card>
-      </div>
-      {showConfirmation && (
-        <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Bekräfta radering</DialogTitle>
-              <DialogDescription>
-                Är du säker på att du vill radera detta jobb? Denna åtgärd kan inte ångras.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button onClick={() => setShowConfirmation(false)} variant="outline">
-                Avbryt
-              </Button>
-              <Button onClick={handleDeleteJob} variant="destructive">
-                Radera jobb
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
-  );
-};
-
-
-
   const renderMessagesView = () => {
     const jobMessages = chatMessages[selectedJob?.id] || [];
   
@@ -1988,8 +1667,8 @@ const renderJobDetailsView = () => {
   const renderPaymentView = () => {
     if (!selectedJob) return null;
 
-      return (
-        <div>
+    return (
+      <div>
     {renderBackButton()}
     <form onSubmit={(e) => { 
       e.preventDefault(); 
@@ -1998,7 +1677,7 @@ const renderJobDetailsView = () => {
     }} className="space-y-4"></form>
       <div className="space-y-6">
         <h3 className="text-2xl font-semibold">Betala för jobb</h3>
-          <Card>
+        <Card>
           <CardHeader>
             <CardTitle>Jobbdetaljer</CardTitle>
           </CardHeader>
@@ -2017,8 +1696,8 @@ const renderJobDetailsView = () => {
                 <dd>{mockUsers.find(u => u.id === selectedJob.providerId)?.name}</dd>
               </div>
             </dl>
-            </CardContent>
-          </Card>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle>Betalningsmetod</CardTitle>
@@ -2120,62 +1799,72 @@ const renderJobDetailsView = () => {
           </Card>
         )}
       </div>
-        </div>
-      );
+      </div>
+    );
   };
+
   const renderFeedbackView = () => {
     if (!selectedJob) return null;
-  
+
     return (
       <div>
-        {renderBackButton()}
-        <div className="space-y-6">
-          <h3 className="text-2xl font-semibold">Lämna feedback</h3>
-          <Card>
-            <CardHeader>
-              <CardTitle>Betygsätt och kommentera</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                handleAction('submitFeedback', {
-                  jobId: selectedJob.id,
-                  fromId: user.id,
-                  toId: user.type === 'customer' ? selectedJob.providerId : selectedJob.customerId,
-                  rating: feedbackForm.rating,
-                  comment: feedbackForm.comment
-                });
-              }} className="space-y-4">
-                <div>
-                  <Label>Betyg</Label>
-                  <div className="flex items-center space-x-2">
-                    {[1, 2, 3, 4, 5].map((rating) => (
-                      <Star
-                        key={rating}
-                        className={`w-8 h-8 cursor-pointer ${
-                          rating <= feedbackForm.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
-                        }`}
-                        onClick={() => setFeedbackForm(prev => ({ ...prev, rating }))}
-                      />
-                    ))}
-                  </div>
+    {renderBackButton()}
+    <form onSubmit={(e) => { 
+      e.preventDefault(); 
+      console.log('Form submitted. FormData:', formData);
+      handleAction('createJob', formData); 
+    }} className="space-y-4"></form>
+      <div className="space-y-6">
+        <h3 className="text-2xl font-semibold">Lämna feedback</h3>
+        <Card>
+          <CardHeader>
+            <CardTitle>Betygsätt och kommentera</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleAction('submitFeedback', async (feedbackData) => {
+                try {
+                  const submittedFeedback = await supabaseAPI.submitFeedback(feedbackData);
+                  setFeedback(prevFeedback => [...prevFeedback, submittedFeedback]);
+                  setSuccess('Feedback har skickats framgångsrikt!');
+                  setView('jobDetails');
+                } catch (error) {
+                  console.error('Error submitting feedback:', error);
+                  setError(`Failed to submit feedback: ${error.message}`);
+                }
+              });
+            }} className="space-y-4">
+              <div>
+                <Label>Betyg</Label>
+                <div className="flex items-center space-x-2">
+                  {[1, 2, 3, 4, 5].map((rating) => (
+                    <Star
+                      key={rating}
+                      className={`w-8 h-8 cursor-pointer ${
+                        rating <= feedbackForm.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
+                      }`}
+                      onClick={() => handleFeedbackChange({ target: { name: 'rating', value: rating } })}
+                    />
+                  ))}
                 </div>
-                <div>
-                  <Label htmlFor="comment">Kommentar</Label>
-                  <Textarea
-                    id="comment"
-                    name="comment"
-                    value={feedbackForm.comment}
-                    onChange={(e) => setFeedbackForm(prev => ({ ...prev, comment: e.target.value }))}
-                    rows={4}
-                    required
-                  />
-                </div>
-                <Button type="submit">Skicka feedback</Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
+              </div>
+              <div>
+                <Label htmlFor="comment">Kommentar</Label>
+                <Textarea
+                  id="comment"
+                  name="comment"
+                  value={feedbackForm.comment}
+                  onChange={handleFeedbackChange}
+                  rows={4}
+                  required
+                />
+              </div>
+              <Button type="submit">Skicka feedback</Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
       </div>
     );
   };
@@ -2185,7 +1874,7 @@ const renderJobDetailsView = () => {
 
     return (
       <div>
-        {renderBackButton()}
+    {renderBackButton()}
     <form onSubmit={(e) => { 
       e.preventDefault(); 
       console.log('Form submitted. FormData:', formData);
@@ -2251,7 +1940,7 @@ const renderJobDetailsView = () => {
               </div>
               <Button type="submit">Skicka rapport</Button>
             </form>
-          </CardContent>
+            </CardContent>
         </Card>
       </div>
       </div>
@@ -2263,7 +1952,7 @@ const renderJobDetailsView = () => {
 
     return (
       <div>
-        {renderBackButton()}
+    {renderBackButton()}
     <form onSubmit={(e) => { 
       e.preventDefault(); 
       console.log('Form submitted. FormData:', formData);
@@ -2375,7 +2064,7 @@ const renderJobDetailsView = () => {
 
   const renderDeleteAccountView = () => (
     <div>
-      {renderBackButton()}
+    {renderBackButton()}
     <form onSubmit={(e) => { 
       e.preventDefault(); 
       console.log('Form submitted. FormData:', formData);
@@ -2384,10 +2073,10 @@ const renderJobDetailsView = () => {
     <div className="space-y-6">
       <h3 className="text-2xl font-semibold text-red-600">Radera konto</h3>
       <Card>
-          <CardHeader>
+        <CardHeader>
           <CardTitle>Bekräfta kontoborttagning</CardTitle>
-          </CardHeader>
-          <CardContent>
+        </CardHeader>
+        <CardContent>
           <p className="text-gray-600 mb-4">
             Är du säker på att du vill radera ditt konto? Denna åtgärd kan inte ångras och all din data kommer att tas bort permanent.
           </p>
@@ -2452,7 +2141,7 @@ const renderJobDetailsView = () => {
                       <TableCell>
                         <Badge variant={user.status === 'active' ? 'success' : 'destructive'}>
                           {user.status === 'active' ? 'Aktiv' : 'Inaktiv'}
-                </Badge>
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         <Button variant="ghost" size="sm" onClick={() => handleEditUser(user.id)}>
@@ -2562,21 +2251,21 @@ const renderJobDetailsView = () => {
                     <div>
                       <dt className="text-sm font-medium text-gray-500">Totala användare</dt>
                       <dd className="text-2xl font-semibold">{mockUsers.length}</dd>
-              </div>
+                    </div>
                     <div>
                       <dt className="text-sm font-medium text-gray-500">Totala jobb</dt>
                       <dd className="text-2xl font-semibold">{jobs.length}</dd>
-              </div>
+                    </div>
                     <div>
                       <dt className="text-sm font-medium text-gray-500">Aktiva tvister</dt>
                       <dd className="text-2xl font-semibold">{disputes.filter(d => d.status !== 'resolved').length}</dd>
-              </div>
+                    </div>
                     <div>
                       <dt className="text-sm font-medium text-gray-500">Total omsättning</dt>
                       <dd className="text-2xl font-semibold">{formatCurrency(jobs.reduce((sum, job) => sum + (job.status === 'completed' ? job.price : 0), 0))}</dd>
-              </div>
+                    </div>
                   </dl>
-              </div>
+                </div>
                 <div>
                   <h4 className="text-lg font-semibold mb-2">Toppanvändare</h4>
                   <Table>
@@ -2604,14 +2293,14 @@ const renderJobDetailsView = () => {
                       })}
                     </TableBody>
                   </Table>
-              </div>
+                </div>
               </div>
               </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-              </div>
-            </div>
+    </div>
+    </div>
   );
 
   const handleEditUser = (userId) => {
@@ -2660,7 +2349,7 @@ const renderJobDetailsView = () => {
             <div>
               <Label htmlFor="name">Namn</Label>
               <Input id="name" name="name" value={formData.name} onChange={handleInputChange} required />
-              </div>
+            </div>
             <div>
               <Label htmlFor="email">E-post</Label>
               <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} required />
@@ -2695,8 +2384,8 @@ const renderJobDetailsView = () => {
             </div>
             <Button type="submit">Uppdatera användare</Button>
           </form>
-          </CardContent>
-        </Card>
+        </CardContent>
+      </Card>
     </div>
   );
 
